@@ -13,7 +13,6 @@ class OTPTokenGenerator:
     def compensate_time_deviation(self, timediff):
         self.__timediff = timediff
 
-    @property
     def generate_token(self):
         now = Util.now()
         now += self.__timediff
