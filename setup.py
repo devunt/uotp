@@ -22,7 +22,15 @@ setup(
     license='Public Domain',
     py_modules=['uotp'],
     keywords=['otp'],
-    install_requires=[],
+    install_requires=[
+        'Click',
+        'PyYAML'
+    ],
+    entry_points={
+        'console_scripts': [
+            'uotp = uotp.cli:cli',
+        ]
+    },
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
