@@ -16,9 +16,10 @@ def save_config():
     yaml.dump(config, fp, default_flow_style=False)
 
 
-@click.group()
+@click.group(invoke_without_command=True)
 @click.option('--conf', default='~/.config/uotp/config.yml', envvar='UOTP_CONF', help='Path to the configuration file.')
-def cli(conf):
+@click.pass_context
+def cli(ctx, conf):
     global config, fp
 
     path = Path(conf).expanduser()
@@ -35,6 +36,9 @@ def cli(conf):
         save_config()
         click.echo(f'A new configuration file has been created on `{path}`.')
         click.echo()
+
+    if ctx.invoked_subcommand is None:
+        ctx.invoke(get)
 
 
 @cli.command()
@@ -74,9 +78,13 @@ def sync():
 
 
 @cli.command()
-def get():
+@click.pass_context
+def get(ctx):
     if not config['account']:
-        click.echo('Please issue a new account first. You can do this with `uotp new`')
+        if click.confirm('Account not exists. Do you want to issue one now?', default=True):
+            ctx.invoke(new)
+        else:
+            click.echo('Please issue a new account first. You can do this with `uotp new`')
         return
 
     generator = OTPTokenGenerator(config['account']['oid'], config['account']['seed'])
