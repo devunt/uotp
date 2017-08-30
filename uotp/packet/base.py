@@ -5,7 +5,7 @@ from socket import socket
 from struct import pack, unpack
 
 from ..seed import SEED
-from ..util import Util
+from ..util import OTPUtil
 
 
 @unique
@@ -107,4 +107,4 @@ class Packet:
 
     @staticmethod
     def generate_shared_key() -> bytes:
-        return sha256(pack('!I', Util.now())).hexdigest().encode()
+        return sha256(pack('!I', OTPUtil.now())).hexdigest().encode()

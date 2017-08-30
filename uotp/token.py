@@ -1,7 +1,7 @@
 from functools import reduce
 from hashlib import sha1
 
-from .util import Util
+from .util import OTPUtil
 
 
 class OTPTokenGenerator:
@@ -14,7 +14,7 @@ class OTPTokenGenerator:
         self.__timediff = timediff
 
     def generate_token(self) -> str:
-        now = Util.now()
+        now = OTPUtil.now()
         now += self.__timediff
 
         time = now // 10

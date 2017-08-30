@@ -4,7 +4,7 @@ from pathlib import Path
 
 from .packet import IssueRequest, TimeRequest
 from . import OTPTokenGenerator
-from . import Util
+from . import OTPUtil
 
 
 config = {}
@@ -55,7 +55,7 @@ def new(ctx):
     config['account'] = resp.params
     save_config()
 
-    serial_number = Util.humanize(resp['serial_number'], char='-', each=4)
+    serial_number = OTPUtil.humanize(resp['serial_number'], char='-', each=4)
 
     click.echo('A new account has been issued successfully.')
     click.echo()
@@ -65,7 +65,7 @@ def new(ctx):
 @cli.command()
 def sync():
     time = TimeRequest()()['time']
-    timediff = time - Util.now()
+    timediff = time - OTPUtil.now()
 
     config['timediff'] = timediff
     save_config()
@@ -83,7 +83,7 @@ def get():
     generator.compensate_time_deviation(config['timediff'])
     token = generator.generate_token()
 
-    token = Util.humanize(token, char=' ', each=3, maxgroup=2)
+    token = OTPUtil.humanize(token, char=' ', each=3, maxgroup=2)
     click.echo(f'OTP Token: {token}')
 
 

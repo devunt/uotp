@@ -2,7 +2,7 @@ from datetime import datetime
 from math import ceil
 
 
-class Util:
+class OTPUtil:
     @staticmethod
     def now() -> int:
         now = datetime.now()
