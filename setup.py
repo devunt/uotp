@@ -7,7 +7,7 @@ with open('README.rst', 'r', encoding='utf-8') as f:
 
 setup(
     name='uotp',
-    version='0.1.1',
+    version='0.2.0',
     description='μOTP+: The next generation OTP toolkit',
     long_description=long_description,
 

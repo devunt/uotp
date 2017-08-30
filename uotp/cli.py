@@ -62,6 +62,7 @@ def new(ctx):
     serial_number = OTPUtil.humanize(resp['serial_number'], char='-', each=4)
 
     click.echo('A new account has been issued.')
+    click.echo('Please keep your configuration file safe as it is not possible to recover the account if it gets lost.')
     click.echo()
     click.echo('Serial Number: {}'.format(serial_number))
 
@@ -85,7 +86,7 @@ def get(ctx, autosync):
         if click.confirm('Account not exists. Do you want to issue one now?', default=True):
             ctx.invoke(new)
         else:
-            click.echo('Please issue a new account first. You can do this with `uotp new`')
+            click.echo('Please issue a new account first. You can do this with `uotp new`.')
         return
 
     if autosync:
@@ -97,6 +98,17 @@ def get(ctx, autosync):
 
     token = OTPUtil.humanize(token, char=' ', each=3, maxgroup=2)
     click.echo('OTP Token: {}'.format(token))
+
+
+@cli.command()
+def info():
+    if not config['account']:
+        click.echo('Please issue a new account first. You can do this with `uotp new`.')
+        return
+
+    serial_number = OTPUtil.humanize(config['account']['serial_number'], char='-', each=4)
+    click.echo('S/N: {}'.format(serial_number))
+    click.echo('Time offset: {}sec'.format(config['timediff']))
 
 
 if __name__ == '__main__':
