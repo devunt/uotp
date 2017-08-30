@@ -33,7 +33,7 @@ def cli(conf):
             'timediff': 0,
         }
         save_config()
-        click.echo(f'Created new configuration file into `{path}`.')
+        click.echo(f'A new configuration file has been created on `{path}`.')
         click.echo()
 
 
@@ -41,7 +41,7 @@ def cli(conf):
 @click.pass_context
 def new(ctx):
     if config['account']:
-        click.confirm('An issued account is already exists. Do you want to override it?', abort=True)
+        click.confirm('Account already exists. Do you want to replace it?', abort=True)
 
     ctx.invoke(sync)
 
@@ -70,7 +70,7 @@ def sync():
     config['timediff'] = timediff
     save_config()
 
-    click.echo(f'Synchronized with remote time (difference: {timediff}sec).')
+    click.echo(f'Time synchronized with the remote server (offset: {timediff}sec).')
 
 
 @cli.command()
