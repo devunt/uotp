@@ -36,7 +36,7 @@ class Int32:
         return str(self.value)
 
     def __repr__(self):
-        return f'<Int32: {self.value}>'
+        return '<Int32: {}>'.format(self.value)
 
     def __format__(self, format_spec):
         return format(self.value, format_spec)

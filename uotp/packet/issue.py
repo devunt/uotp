@@ -15,13 +15,9 @@ class IssueRequest(Packet):
         oid = ''
         ver1, ver2 = data['version']
 
-        return f"{data['mno']: <3}" \
-               f"{oid: <11}" \
-               f"{data['hw_model']: <16}" \
-               f"{data['hw_id']: <4}" \
-               f"{ver1:0>4}" \
-               f"{ver2:0>4}" \
-               .encode()
+        return '{: <3}{: <11}{: <16}{: <4}{:0>4}{:0>4}'.format(
+            data['mno'], oid, data['hw_model'], data['hw_id'], ver1, ver2
+        ).encode()
 
     @classmethod
     def _decode_payload(cls, payload: bytes) -> dict:

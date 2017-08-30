@@ -8,6 +8,8 @@
 Installation
 ============
 
+You will need Python 3.4 or higher in order to run ``uotp``.
+
 .. code-block:: console
 
   $ pip install -U uotp
@@ -16,7 +18,7 @@ Installation
 How to use μOTP+ as cli application
 ===================================
 
-Just run ``utop``.
+Just run ``uotp``.
 
 .. code-block:: console
 
@@ -26,7 +28,7 @@ Just run ``utop``.
 
 Once you have successfully issued the new account, running ``uotp`` again will start giving you the OTP token.
 
-For more information, see ``uotp --help``
+For more information, see ``uotp --help``.
 
 
 Configuration file

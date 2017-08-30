@@ -34,7 +34,7 @@ def cli(ctx, conf):
             'timediff': 0,
         }
         save_config()
-        click.echo(f'A new configuration file has been created on `{path}`.')
+        click.echo('A new configuration file has been created on `{}`.'.format(path))
         click.echo()
 
     if ctx.invoked_subcommand is None:
@@ -63,7 +63,7 @@ def new(ctx):
 
     click.echo('A new account has been issued.')
     click.echo()
-    click.echo(f'Serial Number: {serial_number}')
+    click.echo('Serial Number: {}'.format(serial_number))
 
 
 @cli.command()
@@ -74,7 +74,7 @@ def sync():
     config['timediff'] = timediff
     save_config()
 
-    click.echo(f'Time synchronized with the remote server (offset: {timediff}sec).')
+    click.echo('Time synchronized with the remote server (offset: {}sec).'.format(timediff))
 
 
 @cli.command()
@@ -92,7 +92,7 @@ def get(ctx):
     token = generator.generate_token()
 
     token = OTPUtil.humanize(token, char=' ', each=3, maxgroup=2)
-    click.echo(f'OTP Token: {token}')
+    click.echo('OTP Token: {}'.format(token))
 
 
 if __name__ == '__main__':

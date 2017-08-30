@@ -42,6 +42,8 @@ class Packet:
         size = int(s.recv(5))
         data = s.recv(size)
 
+        s.close()
+
         return self.__from_bytes(data, crypt_key)
 
     def __getitem__(self, item):
@@ -51,7 +53,7 @@ class Packet:
         self.params[key] = value
 
     def __repr__(self):
-        return f'<Packet: {self.opcode}>'
+        return '<Packet: {}>'.format(self.opcode)
 
     def __to_bytes(self, crypt_key: bytes = b'') -> bytes:
         payload = self._encode_payload(self.params)
@@ -60,10 +62,10 @@ class Packet:
             payload = SEED.encrypt(crypt_key, payload)
 
         shared_key = self.shared_key.rjust(64, b' ')
-        codes = f'{self.status.value:0>4}{self.opcode.value:0>3}'.encode()
+        codes = '{:0>4}{:0>3}'.format(self.status.value, self.opcode.value).encode()
 
         body = shared_key + codes + payload
-        header = f'S{len(body):0>5}'.encode()
+        header = 'S{:0>5}'.format(len(body)).encode()
 
         return header + body
 

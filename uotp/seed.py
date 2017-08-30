@@ -258,7 +258,7 @@ class SEED:
     @classmethod
     def __round_key(cls, key: bytes) -> (Int32, ...):
         key = list(map(Int32, unpack('>4i', key)))
-        rkey: List[Int32] = []
+        rkey = []
 
         for i in range(16):
             if i > 0:
