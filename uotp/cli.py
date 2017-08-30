@@ -78,14 +78,18 @@ def sync():
 
 
 @cli.command()
+@click.option('-s', '--autosync', is_flag=True, help='Automatically synchronize time before generating OTP token')
 @click.pass_context
-def get(ctx):
+def get(ctx, autosync):
     if not config['account']:
         if click.confirm('Account not exists. Do you want to issue one now?', default=True):
             ctx.invoke(new)
         else:
             click.echo('Please issue a new account first. You can do this with `uotp new`')
         return
+
+    if autosync:
+        ctx.invoke(sync)
 
     generator = OTPTokenGenerator(config['account']['oid'], config['account']['seed'])
     generator.compensate_time_deviation(config['timediff'])
