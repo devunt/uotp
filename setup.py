@@ -1,29 +1,20 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-from __future__ import with_statement
-
-
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup, find_packages
 
 
 setup(
-    name='μOTP+',
-    packages=['uotp'],
+    name='uotp',
     version='0.0.1',
-    description='The next generation OTP toolkit',
-    url='https://github.com/devunt/uotp',
-    download_url='',
+    packages=find_packages(),
+
+    description='μOTP+: The next generation OTP toolkit',
     author='Bae Junehyeon',
     author_email='devunt' '@' 'gmail.com',
+    url='https://github.com/devunt/uotp',
+    download_url='',
     license='Public Domain',
-    py_modules=['uotp'],
-    keywords=['otp'],
+
     install_requires=[
-        'Click',
+        'click',
         'PyYAML'
     ],
     entry_points={
@@ -31,6 +22,8 @@ setup(
             'uotp = uotp.cli:cli',
         ]
     },
+
+    keywords=['otp'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',

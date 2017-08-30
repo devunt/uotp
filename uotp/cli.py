@@ -1,5 +1,4 @@
 import click
-import os
 import yaml
 from pathlib import Path
 
@@ -18,10 +17,11 @@ def save_config():
 
 
 @click.group()
-def cli():
+@click.option('--conf', default='~/.config/uotp/config.yml', envvar='UOTP_CONF', help='Path to the configuration file.')
+def cli(conf):
     global config, fp
 
-    path = Path(os.environ.get('UOTP_CONF', '~/.config/uotp/config.yml')).expanduser()
+    path = Path(conf).expanduser()
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists():
         fp = click.open_file(path, 'r+', encoding='utf-8')
@@ -34,13 +34,14 @@ def cli():
         }
         save_config()
         click.echo(f'Created new configuration file into `{path}`.')
+        click.echo()
 
 
 @cli.command()
 @click.pass_context
-def issue(ctx):
+def new(ctx):
     if config['account']:
-        click.confirm('An issued account already exists. Do you want to override it?', abort=True)
+        click.confirm('An issued account is already exists. Do you want to override it?', abort=True)
 
     ctx.invoke(sync)
 
@@ -56,8 +57,9 @@ def issue(ctx):
 
     serial_number = Util.humanize(resp['serial_number'], char='-', each=4)
 
-    click.echo('A new account was issued successfully.')
-    click.echo(f'Serial number: {serial_number}')
+    click.echo('A new account has been issued successfully.')
+    click.echo()
+    click.echo(f'Serial Number: {serial_number}')
 
 
 @cli.command()
@@ -68,13 +70,13 @@ def sync():
     config['timediff'] = timediff
     save_config()
 
-    click.echo(f'Synchronized local and remote time (difference: {timediff}sec).')
+    click.echo(f'Synchronized with remote time (difference: {timediff}sec).')
 
 
 @cli.command()
 def get():
     if not config['account']:
-        click.echo('Please issue a new account first.')
+        click.echo('Please issue a new account first. You can do this with `uotp new`')
         return
 
     generator = OTPTokenGenerator(config['account']['oid'], config['account']['seed'])
