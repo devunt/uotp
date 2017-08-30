@@ -61,7 +61,7 @@ def new(ctx):
 
     serial_number = OTPUtil.humanize(resp['serial_number'], char='-', each=4)
 
-    click.echo('A new account has been issued successfully.')
+    click.echo('A new account has been issued.')
     click.echo()
     click.echo(f'Serial Number: {serial_number}')
 
