@@ -36,7 +36,7 @@ Configuration file
 
 By default, a new configuration file will be automatically generated on ``~/.config/uotp/config.yml``.
 
-This behaviour however can be overriden by passing ``--conf=/path/to/config.yml`` to ``uotp`` command or setting `UOTP_CONF=/path/to/config.yml` environment variable.
+This behaviour however can be overriden by passing ``--conf=/path/to/config.yml`` to ``uotp`` command or setting ``UOTP_CONF=/path/to/config.yml`` environment variable.
 
 .. code-block:: console
 
