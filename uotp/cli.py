@@ -25,10 +25,10 @@ def cli(ctx, conf):
     path = Path(conf).expanduser()
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists():
-        fp = click.open_file(path, 'r+', encoding='utf-8')
+        fp = click.open_file(str(path), 'r+', encoding='utf-8')
         config = yaml.load(fp)
     else:
-        fp = click.open_file(path, 'w', encoding='utf-8')
+        fp = click.open_file(str(path), 'w', encoding='utf-8')
         config = {
             'account': None,
             'timediff': 0,
