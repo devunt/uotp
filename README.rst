@@ -15,7 +15,17 @@ You will need Python 3.4 or higher in order to run ``uotp``.
   $ pip install -U uotp
 
 
-How to use μOTP+ as cli application
+How to use μOTP+ as GUI application
+===================================
+
+Run ``uotp gui``.
+
+.. code-block:: console
+
+  $ uotp gui
+
+
+How to use μOTP+ as CLI application
 ===================================
 
 Just run ``uotp``.
