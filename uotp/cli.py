@@ -111,5 +111,14 @@ def info():
     click.echo('Time offset: {}sec'.format(config['timediff']))
 
 
+@cli.command()
+def gui():
+    import wx
+    from .gui import MainWindow
+    app = wx.App()
+    MainWindow()
+    app.MainLoop()
+
+
 if __name__ == '__main__':
     cli()

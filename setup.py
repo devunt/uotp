@@ -22,7 +22,8 @@ setup(
     python_requires='~=3.6',
     install_requires=[
         'click',
-        'PyYAML'
+        'PyYAML',
+        'wxPython',
     ],
     entry_points={
         'console_scripts': [
