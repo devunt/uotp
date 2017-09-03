@@ -9,7 +9,7 @@ from . import OTPUtil
 
 class MainWindow(wx.Frame):
     CONFIG_PATH = '~/.config/uotp/config.yml'
-    REFRESH_INTERVAL = 5
+    REFRESH_INTERVAL = 30
 
     def __init__(self):
         super().__init__(
