@@ -1,6 +1,7 @@
 import click
 import yaml
 from pathlib import Path
+from base64 import b64encode
 
 from .packet import IssueRequest, TimeRequest
 from . import OTPTokenGenerator
@@ -109,6 +110,8 @@ def info():
     serial_number = OTPUtil.humanize(config['account']['serial_number'], char='-', each=4)
     click.echo('S/N: {}'.format(serial_number))
     click.echo('Time offset: {}sec'.format(config['timediff']))
+    click.echo('Oid: {}'.format(config['account']['oid']))
+    click.echo('Seed: {}'.format(b64encode(config['account']['seed']).decode()))
 
 
 @cli.command()
