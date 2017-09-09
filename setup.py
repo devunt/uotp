@@ -19,7 +19,7 @@ setup(
     download_url='',
     license='Public Domain',
 
-    python_requires='~=3.6',
+    python_requires='~=3.4',
     install_requires=[
         'click',
         'PyYAML',
