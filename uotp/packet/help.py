@@ -1,11 +1,8 @@
-from struct import unpack
-
 from .base import Packet, Opcode
 
 
-class TimeRequest(Packet):
-    OPCODE = Opcode.Time
-    SIMPLE = True
+class HelpRequest(Packet):
+    OPCODE = Opcode.Help
 
     @classmethod
     def _encode_payload(cls, data: dict) -> bytes:
@@ -13,8 +10,7 @@ class TimeRequest(Packet):
 
     @classmethod
     def _decode_payload(cls, payload: bytes) -> dict:
-        time, = unpack("!I", payload)
-
+        payload = payload[:-8].decode('cp949')
         return {
-            'time': time
+            'messages': payload.split('|'),
         }

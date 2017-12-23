@@ -3,9 +3,9 @@ import yaml
 from pathlib import Path
 from base64 import b64encode
 
-from .packet import IssueRequest, TimeRequest
-from . import OTPTokenGenerator
-from . import OTPUtil
+from . import UOTP
+from .packet import TimeRequest
+from .util import OTPUtil
 
 
 config = {}
@@ -50,22 +50,21 @@ def new(ctx):
 
     ctx.invoke(sync)
 
-    req = IssueRequest()
-    req['mno'] = 'KTF'
-    req['hw_id'] = 'GA15'
-    req['hw_model'] = 'SM-N900P'
-    req['version'] = (2, 0)
+    uotp = UOTP()
+    uotp.issue_account()
 
-    resp = req()
-    config['account'] = resp.params
+    config['account'] = {
+        'oid': uotp.account_oid,
+        'seed': uotp.account_seed,
+        'serial_number': uotp.account_serial_number,
+        'user_hash': uotp.account_id.encode(),
+    }
     save_config()
-
-    serial_number = OTPUtil.humanize(resp['serial_number'], char='-', each=4)
 
     click.echo('A new account has been issued.')
     click.echo('Please keep your configuration file safe as it is not possible to recover the account if it gets lost.')
     click.echo()
-    click.echo('Serial Number: {}'.format(serial_number))
+    click.echo('Serial Number: {}'.format(uotp.account_serial_number))
 
 
 @cli.command()
@@ -93,9 +92,14 @@ def get(ctx, autosync):
     if autosync:
         ctx.invoke(sync)
 
-    generator = OTPTokenGenerator(config['account']['oid'], config['account']['seed'])
-    generator.compensate_time_deviation(config['timediff'])
-    token = generator.generate_token()
+    uotp = UOTP(
+        config['account']['user_hash'].decode(),
+        config['account']['oid'],
+        config['account']['seed'],
+        config['account']['serial_number']
+    )
+    uotp.sync_time(config['timediff'])
+    token = uotp.generate_token()
 
     token = OTPUtil.humanize(token, char=' ', each=3, maxgroup=2)
     click.echo('OTP Token: {}'.format(token))
@@ -107,8 +111,7 @@ def info():
         click.echo('Please issue a new account first. You can do this with `uotp new`.')
         return
 
-    serial_number = OTPUtil.humanize(config['account']['serial_number'], char='-', each=4)
-    click.echo('S/N: {}'.format(serial_number))
+    click.echo('S/N: {}'.format(config['account']['serial_number']))
     click.echo('Time offset: {}sec'.format(config['timediff']))
     click.echo('Oid: {}'.format(config['account']['oid']))
     click.echo('Seed: {}'.format(b64encode(config['account']['seed']).decode()))

@@ -1,11 +1,8 @@
-from struct import unpack
-
 from .base import Packet, Opcode
 
 
-class TimeRequest(Packet):
-    OPCODE = Opcode.Time
-    SIMPLE = True
+class ResetErrorCountRequest(Packet):
+    OPCODE = Opcode.ResetErrorCount
 
     @classmethod
     def _encode_payload(cls, data: dict) -> bytes:
@@ -13,8 +10,4 @@ class TimeRequest(Packet):
 
     @classmethod
     def _decode_payload(cls, payload: bytes) -> dict:
-        time, = unpack("!I", payload)
-
-        return {
-            'time': time
-        }
+        return {}

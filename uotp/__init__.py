@@ -1,2 +1,1 @@
-from .token import OTPTokenGenerator
-from .util import OTPUtil
+from .uotp import UOTP

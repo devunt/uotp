@@ -1,6 +1,7 @@
 from binascii import unhexlify
 from enum import Enum, unique
-from hashlib import sha256
+from hashlib import sha1, sha256
+from random import choice
 from socket import socket
 from struct import pack, unpack
 
@@ -19,24 +20,33 @@ class Status(Enum):
 @unique
 class Opcode(Enum):
     Error = -1
+    Information = 402
     Time = 407
     Issue = 451
     ResetErrorCount = 452
+    UseHistory = 453
+    Help = 454
 
 
 class Packet:
+    OPCODE = None
+    SIMPLE = False
+
     def __init__(self):
-        self.opcode = None
         self.status = Status.OK
-        self.shared_key = b''
         self.params = {}
 
+        self.oid = ''
+
+        self.shared_crypto_key = b''
+        self.extra_token = b''
+
     def __call__(self):
-        crypt_key = self.shared_key
+        crypto_key = self.__get_crypto_key()
 
         s = socket()
         s.connect(('211.49.97.230', 20004))
-        s.send(self.__to_bytes(crypt_key))
+        s.send(self.__to_bytes(crypto_key))
 
         s.recv(1)
         size = int(s.recv(5))
@@ -44,7 +54,7 @@ class Packet:
 
         s.close()
 
-        return self.__from_bytes(data, crypt_key)
+        return self.__from_bytes(data, crypto_key)
 
     def __getitem__(self, item):
         return self.params[item]
@@ -53,16 +63,48 @@ class Packet:
         self.params[key] = value
 
     def __repr__(self):
-        return '<Packet: {}>'.format(self.opcode)
+        return '<Packet: {}>'.format(self.OPCODE)
 
-    def __to_bytes(self, crypt_key: bytes = b'') -> bytes:
+    def set_oid(self, oid):
+        self.oid = oid
+
+    def set_encryption_info(self, shared_crypto_key: bytes = b'', extra_token: str = b''):
+        if shared_crypto_key:
+            self.shared_crypto_key = shared_crypto_key
+        if extra_token:
+            self.extra_token = '{:0>7} '.format(extra_token).encode()
+
+    def __get_crypto_key(self) -> bytes:
+        if self.shared_crypto_key:
+            if self.extra_token:
+                hasher = sha1()
+                hasher.update(unhexlify(self.shared_crypto_key))
+                hasher.update(self.extra_token)
+                return hasher.digest()
+            else:
+                return self.shared_crypto_key
+        else:
+            return b''
+
+    def __generate_payload_common_header(self) -> bytes:
+        return '{: <3}{: <11}{: <16}{: <4}{:0>4}{:0>4}'.format(
+            choice(('KTF', 'SKT', 'LGT')), self.oid,
+            choice(('SM-G950S', 'SM-G955L', 'SM-G920K')), 'GA15', 2, 0
+        ).encode()
+
+    def __to_bytes(self, crypto_key: bytes = b'') -> bytes:
         payload = self._encode_payload(self.params)
 
-        if crypt_key and payload:
-            payload = SEED.encrypt(crypt_key, payload)
+        if not self.SIMPLE:
+            payload = self.__generate_payload_common_header() + payload
 
-        shared_key = self.shared_key.rjust(64, b' ')
-        codes = '{:0>4}{:0>3}'.format(self.status.value, self.opcode.value).encode()
+        payload += self.extra_token
+
+        if crypto_key and payload:
+            payload = SEED.encrypt(crypto_key, payload)
+
+        shared_key = self.shared_crypto_key.rjust(64, b' ')
+        codes = '{:0>4}{:0>3}'.format(self.status.value, self.OPCODE.value).encode()
 
         body = shared_key + codes + payload
         header = 'S{:0>5}'.format(len(body)).encode()
@@ -70,12 +112,12 @@ class Packet:
         return header + body
 
     @classmethod
-    def __from_bytes(cls, data: bytes, crypt_key: bytes = b'') -> 'Packet':
+    def __from_bytes(cls, data: bytes, crypto_key: bytes = b'') -> 'Packet':
         self = Packet()
 
         shared_key, status, opcode = unpack('64s4s3s', data[:71])
 
-        self.shared_key = unhexlify(shared_key.decode().rstrip(' '))
+        self.shared_crypto_key = unhexlify(shared_key.decode().rstrip(' '))
 
         try:
             self.status = Status(status.decode())
@@ -83,14 +125,14 @@ class Packet:
             self.status = Status.Error
 
         try:
-            self.opcode = Opcode(int(opcode.decode()))
+            self.OPCODE = Opcode(int(opcode.decode()))
         except ValueError:
-            self.opcode = Opcode.Error
+            self.OPCODE = Opcode.Error
 
         payload = data[71:]
 
-        if self.shared_key or crypt_key:
-            payload = SEED.decrypt(self.shared_key or crypt_key, payload)
+        if self.shared_crypto_key or crypto_key:
+            payload = SEED.decrypt(self.shared_crypto_key or crypto_key, payload)
 
         if self.status is not Status.OK:
             raise RuntimeError(self.status, payload.decode('euc-kr'))

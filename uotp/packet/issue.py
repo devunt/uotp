@@ -5,19 +5,15 @@ from .base import Packet, Opcode
 
 
 class IssueRequest(Packet):
+    OPCODE = Opcode.Issue
+
     def __init__(self):
         super().__init__()
-        self.opcode = Opcode.Issue
-        self.shared_key = self.generate_shared_key()
+        self.set_encryption_info(self.generate_shared_key())
 
     @classmethod
     def _encode_payload(cls, data: dict) -> bytes:
-        oid = ''
-        ver1, ver2 = data['version']
-
-        return '{: <3}{: <11}{: <16}{: <4}{:0>4}{:0>4}'.format(
-            data['mno'], oid, data['hw_model'], data['hw_id'], ver1, ver2
-        ).encode()
+        return b''
 
     @classmethod
     def _decode_payload(cls, payload: bytes) -> dict:

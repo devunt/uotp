@@ -60,38 +60,25 @@ How to develop an application using μOTP+
 .. code-block:: python
 
   # Import everything
-  from uotp import OTPTokenGenerator, OTPUtil
-  from uotp.packet import IssueRequest, TimeRequest
+  from uotp import UOTP
+
+
+  # Create an instance of UOTP
+  uotp = UOTP
 
 
   # Issue a new account
-  req = IssueRequest()
-  req['mno'] = 'KTF'
-  req['hw_id'] = 'GA15'
-  req['hw_model'] = 'SM-N900P'
-  req['version'] = (2, 0)
-
-  resp = req()
-  oid = resp['oid']
-  seed = resp['seed']
-  serial_number = resp['serial_number']
-
-  print(Util.humanize(serial_number, char='-', each=4))
+  uotp.issue_account()
+  print('S/N: ', uotp.account_serial_number)
 
 
   # Sync time with the server
-  remote_now = TimeRequest()()['time']
-  local_now = Util.now()
-
-  timediff = remote_now - local_now
+  uotp.sync_time()
 
 
   # Get a new OTP token
-  generator = OTPTokenGenerator(oid, seed)
-  generator.compensate_time_deviation(timediff)
-  token = generator.generate_token()
-
-  print(Util.humanize(token, char=' ', each=3, maxgroup=2)
+  token = uotp.generate_token()
+  print('Token: ', token)
 
 
 License

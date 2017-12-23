@@ -3,8 +3,7 @@ import yaml
 from pathlib import Path
 
 from .packet import IssueRequest, TimeRequest
-from . import OTPTokenGenerator
-from . import OTPUtil
+from . import UOTP
 
 
 class MainWindow(wx.Frame):
@@ -35,8 +34,6 @@ class MainWindow(wx.Frame):
         if not self.config['account']:
             self.issue()
 
-        serial_number = OTPUtil.humanize(self.config['account']['serial_number'], char='-', each=4)
-
         wrapper = wx.Panel(self)
         sizer_wrapper = wx.BoxSizer(wx.VERTICAL)
 
@@ -58,26 +55,26 @@ class MainWindow(wx.Frame):
         box.AddSpacer(5)
 
         self.wg_txt_serial = wx.TextCtrl(panel, style=wx.TE_READONLY | wx.TE_CENTRE | wx.BORDER_NONE)
-        self.wg_txt_serial.SetLabelText(serial_number)
+        self.wg_txt_serial.SetLabelText(self.config['account']['serial_number'])
         box.Add(self.wg_txt_serial, flag=wx.ALIGN_CENTRE)
 
         panel.SetSizer(box)
         sizer_wrapper.Add(panel, proportion=1, flag=wx.ALL | wx.EXPAND, border=20)
         wrapper.SetSizer(sizer_wrapper)
 
-        time = TimeRequest()()['time']
-        timediff = time - OTPUtil.now()
-
-        self.config['timediff'] = timediff
-        self.save_config()
+        self.uotp = UOTP(
+            self.config['account']['user_hash'].decode(),
+            self.config['account']['oid'],
+            self.config['account']['seed'],
+            self.config['account']['serial_number']
+        )
+        self.uotp.sync_time()
 
         self.timeout = -1
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.on_update, self.timer)
         self.timer.Start(1000)
 
-        self.generator = OTPTokenGenerator(self.config['account']['oid'], self.config['account']['seed'])
-        self.generator.compensate_time_deviation(timediff)
         self.on_update()
 
         self.Centre()
@@ -102,7 +99,7 @@ class MainWindow(wx.Frame):
         self.timeout -= 1
         if self.timeout < 0:
             self.timeout = self.REFRESH_INTERVAL
-            self.wg_txt_token.SetValue(self.generator.generate_token())
+            self.wg_txt_token.SetValue(self.uotp.generate_token())
         self.wg_gauge_time.SetValue(self.timeout)
 
 
